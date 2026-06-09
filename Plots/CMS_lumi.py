@@ -29,6 +29,8 @@ relExtraDY = 1.2
 extraOverCmsTextSize  = 0.76
  
 lumi_14TeV = "3000 fb^{-1}"
+lumi_13p6TeV_22_23 = "61.9 fb^{-1}"
+lumi_13p6TeV_2024 = "109.08 fb^{-1}"
 lumi_13TeV = "35.9 fb^{-1}"
 lumi_8TeV  = "19.7 fb^{-1}" 
 lumi_7TeV  = "5.1 fb^{-1}"
@@ -78,6 +80,13 @@ def CMS_lumi(pad,  iPeriod,  iPosX ):
         # lumiText += lumi_13TeV
         lumiText += lumi_sqrtS
         lumiText += " (13 TeV)"
+    elif ( iPeriod==5 ):
+        # lumiText += lumi_13TeV
+        lumiText += lumi_13p6TeV_22_23
+        lumiText += " (13p6 TeV)"
+    elif ( iPeriod==6 ):
+        lumiText += lumi_13p6TeV_2024
+        lumiText += " (13p6 TeV)"
     elif ( iPeriod==7 ):
         if( outOfFrame ):lumiText += "#scale[0.85]{"
         lumiText += lumi_13TeV 

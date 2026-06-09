@@ -3,10 +3,10 @@
 backgroundScriptCfg = {
   
   # Setup
-  'inputWSDir':'/eos/cms/store/group/phys_higgs/cmshgg/zhjie/output/output_1000_boost/opt/data/root/ws_cat0', # location of 'allData.root' file
-  'cats':'auto', # auto: automatically inferred from input ws
+  'inputWSDir':'/afs/cern.ch/user/z/zhdong/work/Xbbgg/CMSSW_14_1_0_pre4/src/flashggFinalFit/myRun3/Resolved/cat0/data/ws', # location of 'allData.root' file
+  'cats':'resolved_cat0', # auto: automatically inferred from input ws
   'catOffset':0, # add offset to category numbers (useful for categories from different allData.root files)  
-  'ext':'1000_M400', # extension to add to output directory
+  'ext':'allData_EGamma_22_23_resolved_cat0', # extension to add to output directory
   'year':'combined', # Use combined when merging all years in category (for plots)
 
   # Job submission options

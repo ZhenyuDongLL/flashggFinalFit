@@ -14,6 +14,7 @@ globalXSBRMap = od()
 globalXSBRMap['example'] = od()
 globalXSBRMap['example']['decay'] = {'mode':'hgg'}
 globalXSBRMap['example']['GG2H'] = {'mode':'ggH'}
+globalXSBRMap['example']['NMSSM'] = {'mode':'ggH'}
 globalXSBRMap['example']['VBF'] = {'mode':'qqH'}
 globalXSBRMap['example']['WH2HQQ'] = {'mode':'WH','factor':BR_W_qq}
 globalXSBRMap['example']['ZH2HQQ'] = {'mode':'qqZH','factor':BR_Z_qq}
@@ -149,3 +150,4 @@ globalXSBRMap['STXS']['THW'] = {'mode':'tHW','factor':0.9894}
 
 globalXSBRMap['STXS']['ttH'] = {'mode':'ttH'}
 globalXSBRMap['STXS']['ggH'] = {'mode':'ggH'}
+globalXSBRMap['STXS']['nmssm'] = {'mode':'ggH'}

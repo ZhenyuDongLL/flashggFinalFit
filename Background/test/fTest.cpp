@@ -603,8 +603,8 @@ int main(int argc, char* argv[]){
   extraText  = "Preliminary";  // default extra text is "Preliminary"
   lumi_8TeV  = "19.1 fb^{-1}"; // default is "19.7 fb^{-1}"
   lumi_7TeV  = "4.9 fb^{-1}";  // default is "5.1 fb^{-1}"
-  lumi_sqrtS = "13 TeV";       // used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
-  string year_ = "2016";
+  lumi_sqrtS = "13p6 TeV";       // used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
+  string year_ = "2022postEE";
   //int year_ = 2017;
 
   string fileName;

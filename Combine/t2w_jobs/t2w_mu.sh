@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd /afs/cern.ch/user/z/zhenxuan/CMSSW_10_6_20/src/flashggFinalFit/Combine
+cd /afs/cern.ch/user/z/zhdong/work/Xbbgg/CMSSW_14_1_0_pre4/src/flashggFinalFit/Combine
 
 eval `scramv1 runtime -sh`
 

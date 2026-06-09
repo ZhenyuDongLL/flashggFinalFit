@@ -328,6 +328,8 @@ def plotInterpolation(_finalModel,_outdir='./',_massPoints='120,121,122,123,124,
       hists['data_%s'%mp].SetLineColor(colorMap[mp])
 
   # Extract first hist and clone for axes
+  # haxes = hists[hists.keys()[0]].Clone()
+  haxes = hists[list(hists.keys())[0]].Clone()
   print(type(hists))
   print(hists.keys())
   haxes = hists[list(hists.keys())[0]].Clone()

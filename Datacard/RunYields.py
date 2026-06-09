@@ -12,7 +12,7 @@ from tools.submissionTools import *
 def get_options():
   parser = OptionParser()
   # Input details
-  parser.add_option('--cats', dest='cats', default='auto', help="Comma separated list of categories. auto = automatically inferred from inputWSDirMap")
+  parser.add_option('--cats', dest='cats', default='NOTAG', help="Comma separated list of categories. auto = automatically inferred from inputWSDirMap")
   parser.add_option('--inputWSDirMap', dest='inputWSDirMap', default='2016=/vols/cms/jl2117/hgg/ws/UL/Sept20/MC_final/signal_2016', help="Map. Format: year=inputWSDir (separate years by comma)")
   parser.add_option('--procs', dest='procs', default='auto', help='Comma separated list of signal processes. auto = automatically inferred from input workspaces')
   parser.add_option('--ext', dest='ext', default='test', help='Extension for saving')

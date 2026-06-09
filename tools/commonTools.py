@@ -80,6 +80,7 @@ def signalFromFileName(_fileName):
   elif "THQ" in _fileName: p = "thq"
   elif "THW" in _fileName: p = "thw"
   elif "bbH" in _fileName: p = "bbh"
+  elif "NMSSM" in _fileName: p = "ggh"
   else:
     print(" --> [ERROR]: cannot extract production mode from input file name. Please update tools.commonTools.signalFromFileName")
     exit(1)
@@ -106,7 +107,8 @@ def procToData( _proc ):
   return _proc
 
 def dataToProc( _d ):
-  dataToProcMap = {v:k for k,v in procToDataMap.iteritems()}
+  # dataToProcMap = {v:k for k,v in procToDataMap.iteritems()}
+  dataToProcMap = {v:k for k,v in procToDataMap.items()}
   if _d in dataToProcMap: return dataToProcMap[_d]
   else: return _d
 

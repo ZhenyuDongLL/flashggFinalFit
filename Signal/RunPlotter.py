@@ -7,7 +7,7 @@ from optparse import OptionParser
 
 from commonTools import *
 from commonObjects import *
-from tools.plottingTools import *
+from tools.plottingTools_new import *
 
 def get_options():
   parser = OptionParser()
