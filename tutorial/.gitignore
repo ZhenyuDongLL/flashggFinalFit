@@ -1,0 +1,6 @@
+samples/
+outputs/
+!outputs/GOLDEN.md
+*.pyc
+__pycache__/
+.generated/
