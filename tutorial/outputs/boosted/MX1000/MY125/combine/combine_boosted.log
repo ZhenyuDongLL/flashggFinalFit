@@ -1,0 +1,123 @@
+
+>>> Random number generator seed is 123456
+>>> Method used is AsymptoticLimits
+Adding discrete pdfindex_boosted_13p6TeV 
+Nuisance parameters after fit for asimov dataset: 
+  1) RooRealVar:: CMS_hgg_nuisance_scale_13p6TeVscale_ = 0 +/- 0
+Using internal logic for binned/unbinned Asimov dataset generation
+Generating asimov with histogram for pdf pdf_binboosted_obsOnly: in 320 x-bins
+Global observables for data: 
+  1) RooRealVar:: CMS_hgg_nuisance_scale_13p6TeVscale__In = 0
+Global observables for asimov: 
+  1) RooRealVar:: CMS_hgg_nuisance_scale_13p6TeVscale__In = 0
+Creating NLL with constraints, nuis size = 1
+Fit to asimov dataset:
+
+  RooFitResult: minimized FCN value: -5.21291e-05, estimated distance to minimum: 6.7572e-06
+                covariance matrix quality: Not calculated at all
+                Status : MINIMIZE=-1 
+
+    Constant Parameter    Value     
+  --------------------  ------------
+  CMS_hgg_nuisance_scale_13p6TeVscale__In    0.0000e+00
+                    MH    1.2500e+02
+  n_exp_binboosted_proc_bkg_mass    1.0000e+00
+
+    Floating Parameter  InitialValue    FinalValue +/-  Error     GblCorr.
+  --------------------  ------------  --------------------------  --------
+  CMS_hgg_nuisance_scale_13p6TeVscale_    0.0000e+00    0.0000e+00 +/-  0.00e+00  <none>
+  env_pdf_0_13p6TeV_bern1_p0    5.9652e-01    5.9653e-01 +/-  0.00e+00  <none>
+  env_pdf_0_13p6TeV_exp1_p1   -1.0516e-02   -1.0516e-02 +/-  0.00e+00  <none>
+  env_pdf_0_13p6TeV_lau1_l1    1.0000e+00    1.0000e+00 +/-  0.00e+00  <none>
+  env_pdf_0_13p6TeV_pow1_p1   -1.3712e+00   -1.3712e+00 +/-  0.00e+00  <none>
+                     r    1.8331e-04    5.3386e-05 +/-  0.00e+00  <none>
+  shapeBkg_bkg_mass_boosted__norm    2.9971e+00    2.9924e+00 +/-  0.00e+00  <none>
+
+Will search for NLL crossing by stepping
+At r = 1.000000:	delta(nll) = 31.94741
+
+At r = 0.500000:	delta(nll) = 15.29352
+
+At r = 0.250000:	delta(nll) = 7.15523
+
+At r = 0.125000:	delta(nll) = 3.23718
+
+At r = 0.062500:	delta(nll) = 1.39549
+
+At r = 0.093750:	delta(nll) = 2.29866
+
+At r = 0.078125:	delta(nll) = 1.84133
+
+At r = 0.085938:	delta(nll) = 2.06877
+
+At r = 0.082031:	delta(nll) = 1.95472
+
+At r = 0.080078:	delta(nll) = 1.89794
+
+At r = 0.082031:	delta(nll) = 1.95472
+
+At r = 0.081055:	delta(nll) = 1.92631
+
+Median for expected limits = 0.0805664, Sigma for expected limits = 0.0411061
+Will search for NLL crossing by bisection
+At r = 0.040283:	delta(nll) = 0.79184
+
+At r = 0.020142:	delta(nll) = 0.30289
+
+At r = 0.030212:	delta(nll) = 0.53711
+
+At r = 0.035248:	delta(nll) = 0.66248
+
+At r = 0.032730:	delta(nll) = 0.59924
+
+At r = 0.031471:	delta(nll) = 0.56803
+
+Will search for NLL crossing by bisection
+At r = 0.056019:	delta(nll) = 1.21498
+
+At r = 0.043745:	delta(nll) = 0.88272
+
+At r = 0.049882:	delta(nll) = 1.04708
+
+At r = 0.046813:	delta(nll) = 0.96442
+
+At r = 0.048348:	delta(nll) = 1.00564
+
+At r = 0.047581:	delta(nll) = 0.98500
+
+Will search for NLL crossing by bisection
+At r = 0.121672:	delta(nll) = 3.13604
+
+At r = 0.142226:	delta(nll) = 3.76439
+
+At r = 0.131949:	delta(nll) = 3.44915
+
+At r = 0.137087:	delta(nll) = 3.60652
+
+At r = 0.139656:	delta(nll) = 3.68539
+
+At r = 0.140941:	delta(nll) = 3.72487
+
+Will search for NLL crossing by bisection
+At r = 0.192645:	delta(nll) = 5.33489
+
+At r = 0.218818:	delta(nll) = 6.16200
+
+At r = 0.231904:	delta(nll) = 6.57790
+
+At r = 0.225361:	delta(nll) = 6.36977
+
+At r = 0.228633:	delta(nll) = 6.47379
+
+At r = 0.230268:	delta(nll) = 6.52584
+
+
+ -- AsymptoticLimits ( CLs ) --
+Expected  2.5%: r < 0.0315
+Expected 16.0%: r < 0.0480
+Expected 50.0%: r < 0.0806
+Expected 84.0%: r < 0.1403
+Expected 97.5%: r < 0.2311
+
+Done in 0.01 min (cpu), 0.01 min (real)
+744 log messages saved to combine_logger.out

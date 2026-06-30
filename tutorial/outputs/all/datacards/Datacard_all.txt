@@ -1,0 +1,27 @@
+Combination of boosted=/afs/cern.ch/user/z/zhdong/work/Xbbgg/CMSSW_14_1_0_pre4/src/flashggFinalFit/tutorial/outputs/boosted/datacards/Datacard_boosted.txt  resolved=/afs/cern.ch/user/z/zhdong/work/Xbbgg/CMSSW_14_1_0_pre4/src/flashggFinalFit/tutorial/outputs/resolved/datacards/Datacard_resolved.txt
+imax 3 number of bins
+jmax 1 number of processes minus 1
+kmax 1 number of nuisance parameters
+----------------------------------------------------------------------------------------------------------------------------------
+shapes bkg_mass                boosted                 /afs/cern.ch/user/z/zhdong/work/Xbbgg/CMSSW_14_1_0_pre4/src/flashggFinalFit/Background/outdir_allData_2024_tutorial_MX1000_MY125_boosted//CMS-HGG_multipdf_boosted.root multipdf:CMS_hgg_boosted_13p6TeV_bkgshape
+shapes data_obs                boosted                 /afs/cern.ch/user/z/zhdong/work/Xbbgg/CMSSW_14_1_0_pre4/src/flashggFinalFit/Background/outdir_allData_2024_tutorial_MX1000_MY125_boosted//CMS-HGG_multipdf_boosted.root multipdf:roohist_data_mass_boosted
+shapes nmssm_merged_hgg        boosted                 /afs/cern.ch/user/z/zhdong/work/Xbbgg/CMSSW_14_1_0_pre4/src/flashggFinalFit/Signal/outdir_packaged_2024_tutorial_MX1000_MY125_boosted//CMS-HGG_sigfit_packaged_boosted.root wsig_13p6TeV:hggpdfsmrel_nmssm_merged_boosted_13p6TeV
+shapes bkg_mass                resolved_resolved_cat0  /afs/cern.ch/user/z/zhdong/work/Xbbgg/CMSSW_14_1_0_pre4/src/flashggFinalFit/Background/outdir_allData_222324_tutorial_MX1000_MY125_cat0//CMS-HGG_multipdf_resolved_cat0.root multipdf:CMS_hgg_resolved_cat0_13p6TeV_bkgshape
+shapes data_obs                resolved_resolved_cat0  /afs/cern.ch/user/z/zhdong/work/Xbbgg/CMSSW_14_1_0_pre4/src/flashggFinalFit/Background/outdir_allData_222324_tutorial_MX1000_MY125_cat0//CMS-HGG_multipdf_resolved_cat0.root multipdf:roohist_data_mass_resolved_cat0
+shapes nmssm_merged_hgg        resolved_resolved_cat0  /afs/cern.ch/user/z/zhdong/work/Xbbgg/CMSSW_14_1_0_pre4/src/flashggFinalFit/Signal/outdir_packaged_222324_tutorial_MX1000_MY125_cat0//CMS-HGG_sigfit_packaged_resolved_cat0.root wsig_13p6TeV:hggpdfsmrel_nmssm_merged_resolved_cat0_13p6TeV
+shapes bkg_mass                resolved_resolved_cat1  /afs/cern.ch/user/z/zhdong/work/Xbbgg/CMSSW_14_1_0_pre4/src/flashggFinalFit/Background/outdir_allData_222324_tutorial_MX1000_MY125_cat1//CMS-HGG_multipdf_resolved_cat1.root multipdf:CMS_hgg_resolved_cat1_13p6TeV_bkgshape
+shapes data_obs                resolved_resolved_cat1  /afs/cern.ch/user/z/zhdong/work/Xbbgg/CMSSW_14_1_0_pre4/src/flashggFinalFit/Background/outdir_allData_222324_tutorial_MX1000_MY125_cat1//CMS-HGG_multipdf_resolved_cat1.root multipdf:roohist_data_mass_resolved_cat1
+shapes nmssm_merged_hgg        resolved_resolved_cat1  /afs/cern.ch/user/z/zhdong/work/Xbbgg/CMSSW_14_1_0_pre4/src/flashggFinalFit/Signal/outdir_packaged_222324_tutorial_MX1000_MY125_cat1//CMS-HGG_sigfit_packaged_resolved_cat1.root wsig_13p6TeV:hggpdfsmrel_nmssm_merged_resolved_cat1_13p6TeV
+----------------------------------------------------------------------------------------------------------------------------------
+bin          boosted                 resolved_resolved_cat0  resolved_resolved_cat1
+observation  -1                      -1                      -1                    
+----------------------------------------------------------------------------------------------------------------------------------
+bin          boosted                 boosted                 resolved_resolved_cat0  resolved_resolved_cat0  resolved_resolved_cat1  resolved_resolved_cat1
+process      nmssm_merged_hgg        bkg_mass                nmssm_merged_hgg        bkg_mass                nmssm_merged_hgg        bkg_mass              
+process      0                       1                       0                       1                       0                       1                     
+rate         170537                  1                       170537                  1                       170537                  1                     
+----------------------------------------------------------------------------------------------------------------------------------
+CMS_hgg_nuisance_scale_13p6TeVscale_  param  0.0 1.0
+pdfindex_boosted_13p6TeV  discrete
+pdfindex_resolved_cat0_13p6TeV  discrete
+pdfindex_resolved_cat1_13p6TeV  discrete

@@ -8,5 +8,5 @@ trees2wsCfg = {
     "systematicsVars": ["CMS_hgg_mass", "Res_dijet_mass", "weight"],
     "theoryWeightContainers": {},
     "systematics": [],
-    "cats": ["resolved_cat0"],
+    "cats": ["resolved_cat1"],
 }

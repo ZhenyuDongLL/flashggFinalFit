@@ -14,6 +14,7 @@ MJET="${MY}"
 MJET_LOW=0
 MJET_HIGH=400
 SKIP_SIGNAL_SYST="${SKIP_SIGNAL_SYST:-1}"
+TUTORIAL_USE_CLI="${TUTORIAL_USE_CLI:-0}"
 SAMPLES_ROOT="${TUTORIAL_SAMPLES_ROOT:-${TUTORIAL_ROOT}/samples}"
 SAMPLE_POINT="${SAMPLES_ROOT}/boosted/MX${MX}/MY${MY}"
 OUT_POINT="${TUTORIAL_ROOT}/outputs/boosted/MX${MX}/MY${MY}"
@@ -24,7 +25,13 @@ cd "${CMSSW_BASE}/src"
 source "${TUTORIAL_ROOT}/env_cmssw.sh"
 
 export PYTHONPATH_TREES2WS="${TUTORIAL_ROOT}/shim:${FLASHGG}/Trees2WS/tools:${FLASHGG}/tools:${FLASHGG}/Signal/tools:${PYTHONPATH}"
+export PYTHONPATH_SIGNAL="${TUTORIAL_ROOT}/shim:${FLASHGG}/Signal/tools:${FLASHGG}/tools:${PYTHONPATH}"
+export PYTHONPATH_BACKGROUND="${TUTORIAL_ROOT}/shim:${FLASHGG}/Background/tools:${FLASHGG}/tools:${PYTHONPATH}"
 export PYTHONPATH_DATACARD="${TUTORIAL_ROOT}/shim:${FLASHGG}/Datacard/tools:${FLASHGG}/tools:${PYTHONPATH}"
+
+source "${TUTORIAL_ROOT}/scripts/fit_pipeline.sh"
+FIT_MODE="config"
+[[ "${TUTORIAL_USE_CLI}" == "1" ]] && FIT_MODE="cli"
 
 mkdir -p "${OUT_POINT}/signal" "${OUT_POINT}/background" "${OUT_POINT}/datacards" "${OUT_POINT}/combine"
 T2W_CFG="${OUT_POINT}/configs/trees2ws_boosted.py"
@@ -78,33 +85,35 @@ cp -f "${DATA_WS_FILE}" "${DATA_WS_DST}/allData.root"
 
 SIG_EXT="signal_${YEAR}_${TUTORIAL_TAG}_MX${MX}_MY${MY}_${CAT}_13p6TeV"
 PACK_EXT="packaged_${YEAR}_${TUTORIAL_TAG}_MX${MX}_MY${MY}_${CAT}"
+BKG_EXT="allData_${YEAR}_${TUTORIAL_TAG}_MX${MX}_MY${MY}_${CAT}"
+BKG_OUTDIR="${FLASHGG}/Background/outdir_${BKG_EXT}"
+CFG_DIR="${OUT_POINT}/configs"
+
+if [[ "${FIT_MODE}" == "config" ]]; then
+  SIG_CFG_REL="$(write_signal_cfg_boosted "${SIG_WS_DST}" "${SIG_EXT}" "${CFG_DIR}")"
+  BKG_CFG="$(write_background_cfg_boosted "${DATA_WS_DST}" "${BKG_EXT}" "${CFG_DIR}")"
+  run_signal_fit config "${SIG_CFG_REL}" "${SIG_EXT}"
+  run_background_fit config "${BKG_CFG}" "${BKG_EXT}"
+  BKG_OUTDIR="${FLASHGG}/Background/outdir_${BKG_EXT}"
+else
+  run_signal_fit cli "${SIG_WS_DST}" "${SIG_EXT}" "${CAT}"
+  run_background_fit cli "${DATA_WS_DST}" "${BKG_EXT}" "${BKG_OUTDIR}" "${CAT}" \
+    "CMS-HGG_multipdf_${CAT}.root"
+fi
 
 cd "${FLASHGG}/Signal"
-mkdir -p "${FLASHGG}/Signal/outdir_${SIG_EXT}/fTest/json" \
-  "${FLASHGG}/Signal/outdir_${SIG_EXT}/signalFit/output"
-python3 scripts/fTest.py --cat "${CAT}" --procs nmssm --ext "${SIG_EXT}" --inputWSDir "${SIG_WS_DST}"
-SIGFIT_EXTRA=()
-[[ "${SKIP_SIGNAL_SYST}" == "1" ]] && SIGFIT_EXTRA+=(--skipSystematics)
-python3 scripts/signalFit.py --inputWSDir "${SIG_WS_DST}" --ext "${SIG_EXT}" --proc nmssm \
-  --cat "${CAT}" --year merged --analysis STXS --massPoints 125 \
-  --scales '' --scalesCorr '' --scalesGlobal '' --smears '' \
-  --replacementThreshold 50 --skipVertexScenarioSplit "${SIGFIT_EXTRA[@]}"
 python3 scripts/packageSignal.py --cat "${CAT}" --exts "${SIG_EXT}" \
   --massPoints 125 --mergeYears --outputExt "${PACK_EXT}"
 SIG_MODEL_DIR="${FLASHGG}/Signal/outdir_${PACK_EXT}"
 PACK_FILE="$(ls "${SIG_MODEL_DIR}"/*.root 2>/dev/null | head -1)"
 [[ -n "${PACK_FILE}" ]] && cp -f "${PACK_FILE}" "${SIG_MODEL_DIR}/CMS-HGG_sigfit_packaged_${CAT}.root"
-mkdir -p "${OUT_POINT}/signal/packaged"
+mkdir -p "${OUT_POINT}/signal/packaged" "${OUT_POINT}/signal/plots"
 cp -a "${SIG_MODEL_DIR}/"* "${OUT_POINT}/signal/packaged/"
+[[ -d "${FLASHGG}/Signal/outdir_${SIG_EXT}/fTest/Plots" ]] && \
+  cp -a "${FLASHGG}/Signal/outdir_${SIG_EXT}/fTest/Plots" "${OUT_POINT}/signal/plots/fTest"
+[[ -d "${FLASHGG}/Signal/outdir_${SIG_EXT}/signalFit/Plots" ]] && \
+  cp -a "${FLASHGG}/Signal/outdir_${SIG_EXT}/signalFit/Plots" "${OUT_POINT}/signal/plots/signalFit"
 
-BKG_EXT="allData_${YEAR}_${TUTORIAL_TAG}_MX${MX}_MY${MY}_${CAT}"
-BKG_OUTDIR="${FLASHGG}/Background/outdir_${BKG_EXT}"
-cd "${FLASHGG}/Background"
-rm -rf "${BKG_OUTDIR}"
-mkdir -p "${BKG_OUTDIR}"
-./bin/fTest -i "${DATA_WS_DST}/allData.root" \
-  --saveMultiPdf "${BKG_OUTDIR}/CMS-HGG_multipdf_${CAT}.root" \
-  -D "${BKG_OUTDIR}/bkgfTest-Data" -f "${CAT}" --isData 1 --year all --catOffset 0
 mkdir -p "${OUT_POINT}/background/multipdf"
 cp -a "${BKG_OUTDIR}/"* "${OUT_POINT}/background/multipdf/"
 

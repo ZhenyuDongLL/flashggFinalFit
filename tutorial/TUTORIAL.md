@@ -93,6 +93,36 @@ Logs:
 
 Reference limits: [`outputs/GOLDEN.md`](outputs/GOLDEN.md).
 
+Signal / background 拟合默认走 **config**（[`configs/signal_*.py`](configs/signal_resolved.py)、[`background_*.py`](configs/background_resolved.py) → `RunSignalScripts.py` / `RunBackgroundScripts.py`）。调试时可 `export TUTORIAL_USE_CLI=1` 改走底层 CLI（§9 附录）。
+
+### 3.1 产物与诊断图（两处路径）
+
+flashggFinalFit **默认**把中间结果写在包内 `Signal/`、`Background/` 下；tutorial driver 会把 **limit、datacard、拟合图** 等镜像到 `tutorial/outputs/`。为在 AFS/EOS 上保持稳定，git **只跟踪** limit log、datacard、filled config（见 [`outputs/README.md`](outputs/README.md)）；**plot / ROOT 仅本地保留**。
+
+| 类型 | flashggFinalFit 内（运行后立即可见） | tutorial `outputs/` 镜像 | git |
+|------|--------------------------------------|--------------------------|-----|
+| Signal fTest 图 | `Signal/outdir_${SIG_EXT}/fTest/Plots/` | `outputs/.../signal/plots_cat*/fTest/` 或 `signal/plots/fTest/` | 否 |
+| Signal fit 图 | `Signal/outdir_${SIG_EXT}/signalFit/Plots/` | `outputs/.../signal/plots_cat*/signalFit/` 或 `signal/plots/signalFit/` | 否 |
+| Background fTest 图 | `Background/outdir_${BKG_EXT}/bkgfTest-Data/*.pdf,*.png` | `outputs/.../background/multipdf*/bkgfTest-Data/` | 否 |
+| Packaged signal WS | `Signal/outdir_packaged_.../` | `outputs/.../signal/packaged_cat*/` | 否 |
+| Multipdf WS | `Background/outdir_.../CMS-HGG_multipdf_*.root` | 同目录下 `background/multipdf*/` | 否 |
+| Filled configs | — | `outputs/.../configs/*.py` | 是 |
+| Datacard | `flashggFinalFit/Datacard/Datacard_*.txt` | `outputs/{resolved,boosted,all}/datacards/` | 是 |
+| Limit | — | `outputs/.../combine/combine_*.log` | 是 |
+
+**命名示例（resolved cat0）**：
+
+```text
+SIG_EXT=signal_222324_tutorial_MX1000_MY125_cat0_13p6TeV
+BKG_EXT=allData_222324_tutorial_MX1000_MY125_cat0
+
+$FLASHGG/Signal/outdir_${SIG_EXT}/fTest/Plots/
+$FLASHGG/Signal/outdir_${SIG_EXT}/signalFit/Plots/
+$FLASHGG/Background/outdir_${BKG_EXT}/bkgfTest-Data/multipdf_resolved_cat0.png
+```
+
+Tutorial 脚本已对 `fTest.py` / `signalFit.py` 传入 **`--doPlots`**，跑完后会自动拷贝到 `outputs/.../signal/plots*`（本地查看，不提交 git）。`workspaces/`、plot、ROOT 均需本地 `./run_tutorial.sh` 重跑生成。
+
 分步命令与物理说明见 §7 起。§4–§6 为简短索引：
 
 - Pipeline 步骤索引 → §9–§12
@@ -225,15 +255,14 @@ export PYTHONPATH_DATACARD=$TUTORIAL_ROOT/shim:$FLASHGG/Datacard/tools:$FLASHGG/
 |------|------|-----------------|----------|
 | 0 | `sync_tutorial_samples.sh verify` | `samples/.../*.root` | 是 |
 | 1 | Trees2WS | `OUT_POINT/workspaces/cat0/...` | 是 |
-| 2a | `fTest.py` | `Signal/outdir_${SIG_EXT}/fTest/` | 是 |
-| 2b | `getDiagProc.py` | `.../getDiagProc/json/` | 否 |
-| 2c | `calcPhotonSyst.py` | `.../calcPhotonSyst/pkl/` | 否 |
-| 2d | `signalFit.py` | `.../signalFit/output/` | 是 |
+| 2 | `RunSignalScripts.py`（`signalScriptCfg`） | `Signal/outdir_${SIG_EXT}/fTest/`, `signalFit/` | 是（默认） |
 | 2e | `packageSignal.py` | `CMS-HGG_sigfit_packaged_resolved_cat0.root` | 是 |
-| 3 | `Background/bin/fTest` | `CMS-HGG_multipdf_resolved_cat0.root` | 是 |
+| 3 | `RunBackgroundScripts.py`（`backgroundScriptCfg`） | `CMS-HGG_multipdf_resolved_cat0.root` | 是（默认） |
 | 4 | `makeYields.py` | `Datacard/yields_${YIELD_EXT}/` | 是 |
 | 5 | `makeDatacard.py` + fix | `Datacard_resolved.txt` | 是 |
 | 6 | `combine` | `combine_resolved.log` | 是 |
+
+默认通过 **config** 驱动（与 `Signal/configs_run3_*` 生产用法一致）。`TUTORIAL_USE_CLI=1` 时改走底层 CLI（§9 Step 2/3 附录）。
 
 ---
 
@@ -299,28 +328,41 @@ Config 字段说明 → §14.1。
 
 ---
 
-### Step 2 — Signal 建模（每个 cat）
+### Step 2 — Signal 建模（每个 cat，默认 config）
+
+**Config 模板**：[`configs/signal_resolved.py`](configs/signal_resolved.py)（`resolved_cat0` 为占位，driver 按 cat sed 生成）。
+
+`run_resolved.sh` 将填充后的 config 写到 `outputs/.../configs/`，并复制到 `Signal/configs_tutorial/` 供 `RunSignalScripts.py` import。
 
 ```bash
 CAT=0
 SIG_WS_DST=$OUT_POINT/workspaces/cat${CAT}/signal/$YEAR/ws_nmssm
 SIG_EXT=signal_${YEAR}_${TUTORIAL_TAG}_MX${MX}_MY${MY}_cat${CAT}_13p6TeV
 PACK_EXT=packaged_${YEAR}_${TUTORIAL_TAG}_MX${MX}_MY${MY}_cat${CAT}
+CFG_DIR=$OUT_POINT/configs
 
+# 生成 config（与 driver 中 write_signal_cfg_resolved 相同）
+sed -e "s|@SIG_WS_DST@|${SIG_WS_DST}|g" \
+    -e "s|@SIG_EXT@|${SIG_EXT}|g" \
+    -e "s/\"resolved_cat0\"/\"resolved_cat${CAT}\"/" \
+  $TUTORIAL_ROOT/configs/signal_resolved.py \
+  > $CFG_DIR/config_signal_${TUTORIAL_TAG}_MX${MX}_MY${MY}_cat${CAT}.py
+cp -f $CFG_DIR/config_signal_${TUTORIAL_TAG}_MX${MX}_MY${MY}_cat${CAT}.py \
+  $FLASHGG/Signal/configs_tutorial/
+SIG_CFG=configs_tutorial/config_signal_${TUTORIAL_TAG}_MX${MX}_MY${MY}_cat${CAT}.py
+
+export PYTHONPATH=$PYTHONPATH_SIGNAL
 cd $FLASHGG/Signal
 mkdir -p outdir_${SIG_EXT}/fTest/json outdir_${SIG_EXT}/signalFit/output
 
-# 2a — fTest: 选 Gaussian 分量数
-python3 scripts/fTest.py --cat resolved_cat${CAT} --procs nmssm \
-  --ext $SIG_EXT --inputWSDir $SIG_WS_DST
+# 2a — fTest（config → 内部调用 fTest.py）
+python3 RunSignalScripts.py --inputConfig $SIG_CFG --mode fTest --modeOpts "--doPlots"
 
-# 2d — signalFit (tutorial: skip shape systematics)
-python3 scripts/signalFit.py --inputWSDir $SIG_WS_DST --ext $SIG_EXT --proc nmssm \
-  --cat resolved_cat${CAT} --year merged --analysis STXS --massPoints 125 \
-  --scales '' --scalesCorr '' --scalesGlobal '' --smears '' \
-  --replacementThreshold 50 --skipVertexScenarioSplit --skipSystematics
+# 2d — signalFit（tutorial 默认跳过 shape syst）
+python3 RunSignalScripts.py --inputConfig $SIG_CFG --mode signalFit \
+  --modeOpts "--doPlots --skipSystematics --replacementThreshold 50 --skipVertexScenarioSplit"
 
-# 2e — package
+# 2e — package（仍为 CLI）
 python3 scripts/packageSignal.py --cat resolved_cat${CAT} --exts $SIG_EXT \
   --massPoints 125 --mergeYears --outputExt $PACK_EXT
 
@@ -331,7 +373,24 @@ cp -f $SIG_MODEL_DIR/*.root \
 
 **自检**：`CMS-HGG_sigfit_packaged_resolved_cat${CAT}.root` 内含 `hggpdfsmrel_nmssm_merged_resolved_cat${CAT}_13p6TeV`。
 
-物理与完整 signal 链 → §10。
+物理与完整 signal 链 → §10。字段说明 → §14.2。
+
+#### 附录：底层 CLI（`TUTORIAL_USE_CLI=1` 或调试）
+
+`RunSignalScripts.py` 在 `batch: local` 下会写出并执行与下列等价的命令（见 `Signal/tools/submissionTools.py`）：
+
+```bash
+cd $FLASHGG/Signal
+python3 scripts/fTest.py --cat resolved_cat${CAT} --procs nmssm \
+  --ext $SIG_EXT --inputWSDir $SIG_WS_DST --doPlots
+
+python3 scripts/signalFit.py --inputWSDir $SIG_WS_DST --ext $SIG_EXT --proc nmssm \
+  --cat resolved_cat${CAT} --year merged --analysis STXS --massPoints 125 \
+  --scales '' --scalesCorr '' --scalesGlobal '' --smears '' \
+  --replacementThreshold 50 --skipVertexScenarioSplit --skipSystematics --doPlots
+```
+
+一键切换：`export TUTORIAL_USE_CLI=1` 后 `./run_tutorial.sh resolved`。
 
 #### 启用 signal shape systematics（生产向，tutorial 默认不跑）
 
@@ -351,28 +410,48 @@ python3 scripts/signalFit.py --inputWSDir $SIG_WS_DST --ext $SIG_EXT --proc nmss
   --replacementThreshold 50 --skipVertexScenarioSplit
 ```
 
-生产批量入口：`python3 Signal/RunSignalScripts.py --inputConfig <config.py> --mode calcPhotonSyst`（modes: `fTest`, `getDiagProc`, `calcPhotonSyst`, `signalFit`）。配置见 `Signal/configs_run3/`。
+生产批量入口（含 `calcPhotonSyst`）：`python3 RunSignalScripts.py --inputConfig <config.py> --mode calcPhotonSyst`。更多生产 config 见 `Signal/configs_run3/`。
 
 ---
 
-### Step 3 — Background multipdf（每个 cat）
+### Step 3 — Background multipdf（每个 cat，默认 config）
+
+**Config 模板**：[`configs/background_resolved.py`](configs/background_resolved.py)。
 
 ```bash
 CAT=0
 DATA_WS_DST=$OUT_POINT/workspaces/cat${CAT}/data/$YEAR/ws
 BKG_EXT=allData_${YEAR}_${TUTORIAL_TAG}_MX${MX}_MY${MY}_cat${CAT}
-BKG_OUTDIR=$FLASHGG/Background/outdir_${BKG_EXT}
+CFG_DIR=$OUT_POINT/configs
 
+sed -e "s|@DATA_WS_DST@|${DATA_WS_DST}|g" \
+    -e "s|@BKG_EXT@|${BKG_EXT}|g" \
+    -e "s/\"resolved_cat0\"/\"resolved_cat${CAT}\"/" \
+  $TUTORIAL_ROOT/configs/background_resolved.py \
+  > $CFG_DIR/config_background_${TUTORIAL_TAG}_MX${MX}_MY${MY}_cat${CAT}.py
+BKG_CFG=$CFG_DIR/config_background_${TUTORIAL_TAG}_MX${MX}_MY${MY}_cat${CAT}.py
+
+export PYTHONPATH=$PYTHONPATH_BACKGROUND
 cd $FLASHGG/Background
-mkdir -p $BKG_OUTDIR
+python3 RunBackgroundScripts.py --inputConfig $BKG_CFG --mode fTestParallel
+
+BKG_OUTDIR=$FLASHGG/Background/outdir_${BKG_EXT}
+```
+
+**自检**：`$BKG_OUTDIR/CMS-HGG_multipdf_resolved_cat${CAT}.root` 含 `CMS_hgg_resolved_cat${CAT}_13p6TeV_bkgshape`。
+
+详解 → §11。字段说明 → §14.3。
+
+#### 附录：底层 CLI
+
+```bash
+cd $FLASHGG/Background
 ./bin/fTest -i $DATA_WS_DST/allData.root \
   --saveMultiPdf $BKG_OUTDIR/CMS-HGG_multipdf_resolved_cat${CAT}.root \
   -D $BKG_OUTDIR/bkgfTest-Data -f resolved_cat${CAT} --isData 1 --year all --catOffset 0
 ```
 
-**自检**：multipdf workspace 含 `CMS_hgg_resolved_cat${CAT}_13p6TeV_bkgshape`。
-
-详解 → §11。
+`RunBackgroundScripts.py` 在 local 模式下最终调用同一个 `bin/fTest`。
 
 ---
 
@@ -430,9 +509,10 @@ combine -M AsymptoticLimits -m 125 -n res_${TUTORIAL_TAG}_MX${MX}_MY${MY} \
 
 | | Tutorial | 生产 |
 |---|----------|------|
-| 配置方式 | Shell CLI | `signalScriptCfg` + `RunSignalScripts.py` |
+| 配置方式 | `signalScriptCfg` + `RunSignalScripts.py`（默认） | 同左，`Signal/configs_run3_*` |
+| 底层 CLI | §9 附录；`TUTORIAL_USE_CLI=1` | 直接调脚本或经 RunSignalScripts |
 | calcPhotonSyst | 跳过 | 通常执行 |
-| signalFit | `--skipSystematics` | 传入非空 `--scales`/`--smears` |
+| signalFit | `--skipSystematics`（经 `--modeOpts`） | 传入非空 `--scales`/`--smears` |
 
 ---
 
@@ -518,14 +598,18 @@ combine -M AsymptoticLimits -m 125 -n all_${TUTORIAL_TAG}_MX${MX}_MY${MY} \
 
 ## 14. 各模块 Config 说明
 
-Tutorial 与生产的 **配置方式** 不同：
+Tutorial 与生产使用 **同一套 config 字典**；tutorial 模板在 `tutorial/configs/`，运行时填充路径后交给 `Run*Scripts.py`。
 
-| 模块 | 字典名 | Tutorial | 生产参考 |
-|------|--------|----------|----------|
+| 模块 | 字典名 | Tutorial 模板 | 生产参考 |
+|------|--------|---------------|----------|
 | Trees2WS | `trees2wsCfg` | [`configs/trees2ws_resolved.py`](configs/trees2ws_resolved.py) | `finalfit_tune/configs/trees2ws_tune.py` |
-| Signal | `signalScriptCfg` | **CLI only**（`run_*.sh`） | `Signal/configs_run3/` + `RunSignalScripts.py` |
-| Background | `backgroundScriptCfg` | **fTest CLI** | `Background/configs/` + `RunBackgroundScripts.py` |
+| Signal | `signalScriptCfg` | [`configs/signal_resolved.py`](configs/signal_resolved.py), [`signal_boosted.py`](configs/signal_boosted.py) | `Signal/configs_run3/` |
+| Background | `backgroundScriptCfg` | [`configs/background_resolved.py`](configs/background_resolved.py), [`background_boosted.py`](configs/background_boosted.py) | `Background/configs/` |
 | 全局 | shim `commonObjects.py` | `13p6TeV`, `lumiMap['222324']=170.537` | `finalfit_tune/flashgg_shim/` |
+
+生成后的 signal config 副本：`Signal/configs_tutorial/`（runtime，gitignore）。Background config 可用绝对路径传给 `RunBackgroundScripts.py`。
+
+**CLI 附录**：`RunSignalScripts` / `RunBackgroundScripts` 在 `batch: local` 下写出并执行 `fTest.py`、`signalFit.py`、`bin/fTest` 命令；见 §9 Step 2/3 附录与 `tutorial/scripts/fit_pipeline.sh`（`TUTORIAL_USE_CLI=1` 跳过 wrapper）。
 
 ### 14.1 Trees2WS — `trees2wsCfg`
 
@@ -542,27 +626,33 @@ CLI 补充 config：`--inputTreeFile`, `--productionMode`, `--year`, `--jetmass`
 
 ### 14.2 Signal — `signalScriptCfg`
 
-| 字段 | Tutorial CLI 等价 |
-|------|-------------------|
-| `inputWSDir` | `SIG_WS_DST` |
-| `procs` | `--procs nmssm` |
-| `cats` | `--cat resolved_cat${CAT}` |
-| `ext` | `SIG_EXT=signal_${YEAR}_${TUTORIAL_TAG}_MX${MX}_MY${MY}_cat${CAT}_13p6TeV` |
-| `analysis` | `--analysis STXS`（映射见 [`shim/replacementMap.py`](shim/replacementMap.py)） |
-| `year` / `massPoints` | `--year merged --massPoints 125` |
-| `scales` / `smears` | `''`（或见 §9 Step 2 生产示例） |
+| 字段 | Tutorial 值 |
+|------|-------------|
+| `inputWSDir` | `SIG_WS_DST`（生成 config 时填入） |
+| `procs` | `nmssm` |
+| `cats` | `resolved_cat0`（sed → cat1）或 `boosted` |
+| `ext` | `SIG_EXT` |
+| `analysis` | `STXS`（映射见 [`shim/replacementMap.py`](shim/replacementMap.py)） |
+| `year` / `massPoints` | `merged` / `125` |
+| `scales` / `smears` | `''`（tutorial 跳过 shape syst） |
+| `batch` | `local` |
 
-`packageSignal` 使用单独的 `--outputExt packaged_...` → `outdir_packaged_.../`。
+额外 CLI 选项经 `RunSignalScripts.py --modeOpts` 传入，例如 `--doPlots --skipSystematics`。
 
-### 14.3 Background — `backgroundScriptCfg` vs CLI
+`packageSignal` 仍为 CLI：`--outputExt packaged_...` → `outdir_packaged_.../`。
 
-| Config 字段 | Tutorial `fTest` CLI |
-|-------------|---------------------|
-| `inputWSDir` + `allData.root` | `-i $DATA_WS_DST/allData.root` |
-| `cats` | `-f resolved_cat${CAT}` |
+### 14.3 Background — `backgroundScriptCfg`
+
+| 字段 | Tutorial 值 |
+|------|-------------|
+| `inputWSDir` | `DATA_WS_DST`（须含 `allData.root`） |
+| `cats` | `resolved_cat0`（sed → cat1）或 `boosted` |
 | `ext` | `BKG_EXT` → `outdir_${BKG_EXT}/` |
-| `catOffset` | `--catOffset 0` |
-| multipdf 输出 | `--saveMultiPdf .../CMS-HGG_multipdf_*.root` |
+| `catOffset` | `0` |
+| `year` | `combined`（内部映射为 `all`） |
+| `batch` | `local` |
+
+底层 `bin/fTest` 等价参数见 §9 Step 3 附录。
 
 ### 14.4 进一步阅读
 
@@ -586,6 +676,8 @@ CLI 补充 config：`--inputTreeFile`, `--productionMode`, `--year`, `--jetmass`
 **`fTest.py` IndexError on `output*`** — signal workspace 需 symlink `output_signal_*_M125_*_nmssm.root`（driver 已做）。
 
 **Sample path** — `export TUTORIAL_SAMPLES_ROOT=...`.
+
+**`TUTORIAL_USE_CLI=1`** — 跳过 `Run*Scripts`，直接调 `fTest.py` / `signalFit.py` / `bin/fTest`（§9 附录）。
 
 **为何 tutorial 不开 signal syst？** — 加快教学跑通；shape syst 见 §9 Step 2 与 §10。Datacard 行级 nuisance 见 `Datacard/systematics.py`.
 

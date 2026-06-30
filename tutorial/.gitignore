@@ -1,6 +1,30 @@
 samples/
-outputs/
+
+# Tutorial outputs: local-only by default (AFS/EOS + large binaries are unstable in git).
+outputs/**
+
+# Lightweight reference artifacts only (limits, datacards, filled configs).
+!outputs/
 !outputs/GOLDEN.md
+!outputs/README.md
+!outputs/**/
+!outputs/**/datacards/
+!outputs/**/datacards/*.txt
+!outputs/**/combine/
+!outputs/**/combine/combine_*.log
+!outputs/**/configs/
+!outputs/**/configs/*.py
+
+# Always local (even under outputs/).
+outputs/**/workspaces/
+outputs/**/fTestParallel/
+outputs/**/signal/
+outputs/**/background/
+outputs/**/data/
+outputs/validation_run.log
+outputs/*_run.log
+outputs/full_run.log
+
 *.pyc
 __pycache__/
 .generated/

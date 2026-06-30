@@ -13,7 +13,7 @@ Mini end-to-end final fit: **resolved**, **boosted**, and **all** (boosted+resol
 | § | 内容 |
 |---|------|
 | 0 | 阅读导引、pipeline 图 |
-| 1–3 | 环境、样本、一键运行 |
+| 1–3 | 环境、样本、一键运行、**产物/诊断图路径** |
 | 7 | 物理背景（bbgg, MX/MY, PNN cat） |
 | 8 | 统计框架（likelihood, r, multipdf, syst 分类） |
 | 9 | **Resolved 分步命令**（与 `run_resolved.sh` 对齐） |
@@ -21,7 +21,8 @@ Mini end-to-end final fit: **resolved**, **boosted**, and **all** (boosted+resol
 | 11 | Background multipdf |
 | 12 | Datacard 与 combine limit |
 | 13 | Boosted / combined 差异 |
-| 14 | Trees2WS / Signal / Background **config** 字段说明 |
+| 14 | Trees2WS / Signal / Background **config**（默认 `Run*Scripts`；CLI 附录） |
 | 15 | FAQ |
 
-Golden limits: [`outputs/GOLDEN.md`](outputs/GOLDEN.md).
+Golden limits: [`outputs/GOLDEN.md`](outputs/GOLDEN.md).  
+Reference outputs (limits, plots, datacards): [`outputs/README.md`](outputs/README.md).
