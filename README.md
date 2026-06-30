@@ -60,4 +60,4 @@ Each of the relevant folders are documented with specific `README.md` files. Som
 
 ## Hands-on tutorial (bbgg Run 3)
 
-End-to-end mini final fit (resolved + boosted + combined limits): [tutorial/TUTORIAL.md](tutorial/TUTORIAL.md)
+End-to-end mini final fit (resolved + boosted + combined limits), with physics/stat notes, step-by-step commands, and module config guide: [tutorial/TUTORIAL.md](tutorial/TUTORIAL.md)
