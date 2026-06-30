@@ -30,11 +30,14 @@ cmsenv
 scram b clean
 scram b -j 8
 
-# Install Final Fit package
-git clone -b bbgg_boosted git@github.com:chuwang1/flashggFinalFit.git
+# Install Final Fit package (bbgg Run 3 fork)
+git clone -b zhenyudong_bbgg_tune_v1 https://github.com/ZhenyuDongLL/flashggFinalFit.git
 ```
 
+Upstream CMS reference: [TyCaoihep/flashggFinalFit](https://github.com/TyCaoihep/flashggFinalFit) (`bbgg_for_run3` base). For full bbgg pipeline setup see the [Xbbgg](https://github.com/ZhenyuDongLL/Xbbgg) repo (`FLASHGG_PIN.yaml`, `finalfit_tune/`).
+
 In every new shell run the following to add `tools/commonTools` and `tools/commonObjects` to your `${PYTHONPATH}`:
+
 ```
 cmsenv
 source setup.sh
